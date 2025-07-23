@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Menu, X, Phone, Mail, MapPin, Shield, Users, Award, ChevronRight } from 'lucide-react';
+import logo from './assets/kk.png'
+import hero from './assets/hero.jpg'
 
 const GastroNovaWebsite = () => {
   const [activeSection, setActiveSection] = useState('home');
@@ -26,9 +28,7 @@ const GastroNovaWebsite = () => {
 
   const Logo = () => (
     <div className="flex items-center gap-3">
-      <div className="w-12 h-12 bg-gradient-to-br from-blue-900 to-green-500 rounded-lg flex items-center justify-center">
-        <Shield className="w-6 h-6 text-white" />
-      </div>
+        <img src={logo} alt="Logo" className="w-16 h-16 object-contain" />
       <div>
         <h1 className="text-xl font-bold text-blue-900">GASTRO NOVA</h1>
         <p className="text-sm text-gray-600">Advanced GI & Liver Wellness</p>
@@ -126,7 +126,7 @@ const GastroNovaWebsite = () => {
             </div>
             <div className="relative">
               <div className="w-full h-80 bg-gradient-to-br from-blue-100 to-green-100 rounded-2xl flex items-center justify-center">
-                <Shield className="w-32 h-32 text-blue-900 opacity-20" />
+                <img src='https://img.freepik.com/free-photo/doctor-talking-with-her-patient_1139-318.jpg' alt="Logo" className=" rounded  object-contain" />
               </div>
             </div>
           </div>
