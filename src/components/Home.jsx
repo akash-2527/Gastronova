@@ -1,213 +1,482 @@
-import React, { useEffect, useRef } from 'react';
-import { ChevronRight, Shield, Users, Award, Microscope, Heart, Globe } from 'lucide-react';
+
+import React from 'react';
+import { motion } from 'framer-motion';
+import { ChevronRight } from 'lucide-react';
+
+const images = {
+  mission: '/src/assets/mission.png',
+  vision: '/src/assets/vision.png',
+  l: '/src/assets/l.png',
+  s: '/src/assets/s.png',
+  p: '/src/assets/p.png',
+  b: '/src/assets/b.png',
+  exp: '/src/assets/exp.png'
+};
+
+// Animation variants
+const fadeInUp = {
+  hidden: { opacity: 0, y: 60 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.8, ease: "easeOut" }
+  }
+};
+
+const fadeInLeft = {
+  hidden: { opacity: 0, x: -60 },
+  visible: { 
+    opacity: 1, 
+    x: 0,
+    transition: { duration: 0.8, ease: "easeOut" }
+  }
+};
+
+const fadeInRight = {
+  hidden: { opacity: 0, x: 60 },
+  visible: { 
+    opacity: 1, 
+    x: 0,
+    transition: { duration: 0.8, ease: "easeOut" }
+  }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: { 
+    opacity: 1, 
+    scale: 1,
+    transition: { duration: 0.6, ease: "easeOut" }
+  }
+};
+
+const slideInFromBottom = {
+  hidden: { opacity: 0, y: 100 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.8, ease: "easeOut" }
+  }
+};
 
 const HomePage = ({ setActiveSection }) => {
-  const statsRef = useRef(null);
-  const featuresRef = useRef(null);
-
-  useEffect(() => {
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -100px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.style.opacity = '1';
-          entry.target.style.transform = 'translateY(0)';
-        }
-      });
-    }, observerOptions);
-
-    if (statsRef.current) observer.observe(statsRef.current);
-    if (featuresRef.current) observer.observe(featuresRef.current);
-
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <div className="pt-20">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-cream-50 via-white to-green-50 py-20 lg:py-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <div className="inline-flex items-center px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                Trusted Since 1999
-              </div>
-              
-              <h1 className="text-4xl lg:text-6xl font-bold text-blue-900 leading-tight">
-                Advanced GI & Liver 
-                <span className="text-green-500"> Wellness</span> Solutions
-              </h1>
-              
-              <p className="text-lg lg:text-xl text-gray-700 leading-relaxed max-w-xl">
-                With over 25+ years of experience in the pharmaceutical industry, we deliver 
-                innovative treatments and expert care for optimal digestive and liver health.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button
-                  onClick={() => setActiveSection('about')}
-                  className="group bg-green-400 text-white px-8 py-4 rounded-xl font-semibold hover:bg-green-500 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
-                >
-                  Discover Our Story 
-                  <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </button>
-                <button
-                  onClick={() => setActiveSection('contact')}
-                  className="border-2 border-blue-900 text-blue-900 px-8 py-4 rounded-xl font-semibold hover:bg-blue-900 hover:text-white transition-all duration-300 shadow-lg hover:shadow-xl"
-                >
-                  Get Expert Consultation
-                </button>
-              </div>
-            </div>
-            
-            <div className="relative">
-              <div className="relative w-full h-96 lg:h-[500px] rounded-3xl overflow-hidden shadow-2xl">
-                <img 
-                  src='https://img.freepik.com/free-photo/doctor-talking-with-her-patient_1139-318.jpg' 
-                  alt="Medical Consultation" 
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-blue-900/20 to-transparent"></div>
-              </div>
-              
-              {/* Floating Cards */}
-              <div className="absolute -top-4 -left-4 bg-white p-4 rounded-2xl shadow-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-green-400 rounded-xl flex items-center justify-center">
-                    <Heart className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-blue-900">10M+</p>
-                    <p className="text-sm text-gray-600">Lives Improved</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="absolute -bottom-4 -right-4 bg-white p-4 rounded-2xl shadow-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-blue-900 rounded-xl flex items-center justify-center">
-                    <Award className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-blue-900">ISO Certified</p>
-                    <p className="text-sm text-gray-600">Quality Assured</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section 
-        ref={statsRef}
-        className="py-20 bg-blue-900 opacity-0 transform translate-y-8 transition-all duration-1000"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { number: "25+", label: "Years Experience" },
-              { number: "500+", label: "Research Studies" },
-              { number: "50+", label: "Countries Served" },
-              { number: "10M+", label: "Patients Treated" }
-            ].map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-4xl lg:text-5xl font-bold text-white mb-2">{stat.number}</div>
-                <p className="text-blue-200 font-medium">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Services Section */}
-      <section 
-        ref={featuresRef}
-        className="py-24 bg-white opacity-0 transform translate-y-8 transition-all duration-1000"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold text-blue-900 mb-6">
-              Our Core <span className="text-green-500">Expertise</span>
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Comprehensive pharmaceutical solutions backed by decades of research and innovation
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                icon: <Microscope className="w-8 h-8" />,
-                title: "Advanced Research & Development",
-                description: "Cutting-edge pharmaceutical research with state-of-the-art laboratories and clinical trial capabilities for breakthrough treatments."
-              },
-              {
-                icon: <Shield className="w-8 h-8" />,
-                title: "Quality Assurance Excellence",
-                description: "ISO-certified manufacturing processes ensuring the highest standards of pharmaceutical quality and patient safety."
-              },
-              {
-                icon: <Users className="w-8 h-8" />,
-                title: "Expert Medical Team",
-                description: "World-class specialists and researchers dedicated to advancing gastrointestinal and liver health solutions."
-              },
-              {
-                icon: <Award className="w-8 h-8" />,
-                title: "Innovative Formulations",
-                description: "Proprietary drug formulations and delivery systems designed for optimal therapeutic outcomes and patient compliance."
-              },
-              {
-                icon: <Heart className="w-8 h-8" />,
-                title: "Patient-Centric Care",
-                description: "Comprehensive support programs and personalized treatment approaches focused on improving quality of life."
-              },
-              {
-                icon: <Globe className="w-8 h-8" />,
-                title: "Global Distribution Network",
-                description: "Extensive international presence ensuring reliable access to our pharmaceutical products worldwide."
-              }
-            ].map((service, index) => (
-              <div 
-                key={index} 
-                className="group bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-green-200"
+      <section className="bg-gradient-to-br from-blue-50 to-green-50 py-20 overflow-hidden">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={fadeInLeft}
+            >
+              <motion.h1 
+                className="text-4xl md:text-5xl font-bold text-blue-900 mb-6"
+                variants={fadeInUp}
               >
-                <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-green-500 rounded-2xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform duration-300">
-                  {service.icon}
-                </div>
-                <h3 className="text-xl font-bold text-blue-900 mb-4 group-hover:text-green-600 transition-colors">
-                  {service.title}
-                </h3>
-                <p className="text-gray-600 leading-relaxed">{service.description}</p>
-              </div>
-            ))}
+                Advanced GI & Liver Wellness Solutions
+              </motion.h1>
+
+              <motion.div
+                className="flex flex-col sm:flex-row gap-4"
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+              >
+                <motion.button
+                  onClick={() => setActiveSection('about us')}
+                  className="bg-green-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
+                  variants={scaleIn}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Learn More <ChevronRight className="w-4 h-4" />
+                </motion.button>
+                <motion.button
+                  onClick={() => setActiveSection('contact')}
+                  className="border-2 border-blue-900 text-blue-900 px-8 py-3 rounded-lg font-semibold hover:bg-blue-900 hover:text-white transition-colors"
+                  variants={scaleIn}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Contact Us
+                </motion.button>
+              </motion.div>
+            </motion.div>
+            
+            <motion.div 
+              className="relative"
+              initial="hidden"
+              animate="visible"
+              variants={fadeInRight}
+            >
+              <motion.div 
+                className="w-full h-80 bg-gradient-to-br from-blue-100 to-green-100 rounded-2xl flex items-center justify-center overflow-hidden"
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.3 }}
+              >
+                <motion.img 
+                  src='https://img.freepik.com/free-photo/doctor-talking-with-her-patient_1139-318.jpg' 
+                  alt="Doctor consultation" 
+                  className="w-full h-full rounded-2xl object-cover"
+                  initial={{ scale: 1.1 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 1.2, ease: "easeOut" }}
+                />
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
-            Ready to Experience Excellence?
-          </h2>
-          <p className="text-xl text-blue-100 mb-10 max-w-3xl mx-auto">
-            Join millions of patients worldwide who trust our pharmaceutical innovations for better health outcomes
-          </p>
-          <button
-            onClick={() => setActiveSection('contact')}
-            className="bg-green-400 text-white px-10 py-5 rounded-2xl font-semibold hover:bg-green-500 transition-all duration-300 text-lg shadow-2xl hover:shadow-3xl transform hover:scale-105"
+      {/* Mission & Vision Section */}
+      <section className='py-20 px-4 max-w-6xl mx-auto'>
+        {/* Mission */}
+        <motion.div 
+          className="grid md:grid-cols-2 gap-16 items-center mb-20"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={staggerContainer}
+        >
+          <motion.div variants={fadeInLeft}>
+            <motion.h2 
+              className="text-3xl font-bold text-blue-900 mb-6"
+              variants={fadeInUp}
+            >
+              Our Mission
+            </motion.h2>
+            <motion.p 
+              className="text-gray-700 mb-6"
+              variants={fadeInUp}
+            >
+              At the heart of our mission is a commitment to becoming a trusted leader in GI therapeutics. We strive to deliver innovative, high-quality products that address real needs while ensuring every step we take aligns with ethical marketing principles. By focusing on doctor-centric engagement, we aim to foster long-term partnerships that drive better patient care and medical advancement.
+            </motion.p>
+          </motion.div>
+          <motion.div 
+            className="w-full h-74 flex items-center justify-center"
+            variants={fadeInRight}
           >
-            Start Your Journey Today
-          </button>
+            <motion.img 
+              src={images.mission} 
+              alt="Mission" 
+              className="h-74 object-cover rounded-2xl"
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.3 }}
+            />
+          </motion.div>
+        </motion.div>
+
+        {/* Vision */}
+        <motion.div 
+          className="grid md:grid-cols-2 gap-16 items-center mb-20"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={staggerContainer}
+        >
+          <motion.div 
+            className="p-8"
+            variants={fadeInLeft}
+          >
+            <div className="w-full h-74 flex items-center justify-center">
+              <motion.img 
+                src={images.vision} 
+                alt="vision" 
+                className="h-74 object-cover rounded-2xl"
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.3 }}
+              />
+            </div>
+          </motion.div>
+          <motion.div 
+            className="order-1 md:order-2"
+            variants={fadeInRight}
+          >
+            <motion.h2 
+              className="text-3xl font-bold text-blue-900 mb-6"
+              variants={fadeInUp}
+            >
+              Our Vision
+            </motion.h2>
+            <motion.p 
+              className="text-gray-700 mb-6"
+              variants={fadeInUp}
+            >
+              Our vision is to become a leading force in advanced gastrointestinal and liver wellness by delivering innovative, science-driven solutions that transform patient outcomes and elevate standards of care.
+            </motion.p>
+            <motion.p 
+              className="text-gray-700"
+              variants={fadeInUp}
+            >
+              We strive to empower individuals to enjoy healthier, fuller lives and to be recognized as trusted partners in the global journey toward GI and liver health excellence
+            </motion.p>
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* Product Categories Section */}
+      <section className="bg-gradient-to-br from-blue-50 to-green-50 py-20 px-4 overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          <motion.h2 
+            className="text-3xl md:text-4xl font-bold text-center text-blue-900 mb-12"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeInUp}
+          >
+            From Essential to Advanced – A Complete Range for Digestive and Liver Health.
+          </motion.h2>
+
+          <motion.div 
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={staggerContainer}
+          >
+            {[
+              { img: images.l, title: "Liver Care", bg: "bg-green-200", color: "text-green-900" },
+              { img: images.s, title: "Gut Health", bg: "bg-green-100", color: "text-green-900" },
+              { img: images.b, title: "Amino Acid / Protein", bg: "bg-cyan-100", color: "text-cyan-900" },
+              { img: images.p, title: "OTC", bg: "bg-blue-100", color: "text-blue-900" }
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                className={`${item.bg} rounded-xl p-6 flex flex-col items-center text-center hover:shadow-lg transition-shadow`}
+                variants={scaleIn}
+                whileHover={{ scale: 1.05, y: -5 }}
+                transition={{ duration: 0.3 }}
+              >
+                <motion.span 
+                  className="text-5xl mb-4"
+                  whileHover={{ rotate: 10 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <img src={item.img} className='w-12 h-12' alt={item.title} />
+                </motion.span>
+                <h3 className={`text-xl font-semibold ${item.color}`}>{item.title}</h3>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       </section>
+
+      {/* Expertise Section */}
+      <section className="py-24 bg-white px-6 overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <motion.h2 
+            className="text-4xl font-bold text-gray-800 text-center mb-16"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeInUp}
+          >
+            Our Expertise
+          </motion.h2>
+
+          <motion.div 
+            className="grid md:grid-cols-2 items-center text-center justify-center gap-6"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={staggerContainer}
+          >
+            <motion.div 
+              className="flex flex-col items-center justify-center md:items-center text-center md:text-right"
+              variants={fadeInLeft}
+            >
+              <motion.div 
+                className="w-20 h-20 mb-6 justify-center text-center items-center"
+                initial={{ opacity: 0, scale: 0.5 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                variants={fadeInUp}
+                transition={{ duration: 0.5 }}
+              >
+                <img src={images.exp} alt="Experience Icon" className="w-full h-full object-contain transform scale-x-[-1]" />
+              </motion.div>
+              <motion.h3 
+                className="text-5xl font-bold text-gray-800 mb-2"
+                initial={{ opacity: 0, scale: 0.5 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+              >
+                25 +
+              </motion.h3>
+              <motion.p 
+                className="text-lg text-gray-500"
+                variants={fadeInUp}
+              >
+                Years Of Experience
+              </motion.p>
+            </motion.div>
+
+            <motion.div variants={fadeInRight}>
+              <motion.p 
+                className="text-xl text-gray-700 leading-relaxed "
+                variants={fadeInUp}
+              >
+                We sincerely value your trust as we embark on this exciting new journey.
+                Backed by over <span className="font-semibold text-blue-900">25 years of industry expertise</span>,
+                our team is committed to delivering high-quality pharmaceutical solutions with
+                <span className="text-green-700 font-medium"> care</span>,
+                <span className="text-green-700 font-medium"> ethics</span>, and
+                <span className="text-green-700 font-medium"> excellence</span>.
+                Your continued support is deeply appreciated.
+              </motion.p>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Product Portfolio Section */}
+      <section className="py-20 bg-gradient-to-br from-blue-50 to-green-50 px-4 overflow-hidden">
+        <div className="max-w-6xl mx-auto text-center">
+          <motion.h2 
+            className="text-3xl md:text-4xl font-bold text-blue-900 mb-4"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeInUp}
+          >
+            Product Portfolio Highlights
+          </motion.h2>
+          <motion.p 
+            className="text-gray-600 mb-12"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeInUp}
+          >
+            Designed for precision care in gastrointestinal and liver wellness, our specialized portfolio blends therapeutic efficacy with advanced scientific innovation.
+          </motion.p>
+
+          <motion.div 
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={staggerContainer}
+          >
+            {[
+              {
+                title: "Proton Pump Inhibitors (PPI)",
+                description: "Advanced acid suppression therapy for effective relief from acid reflux, GERD, and peptic ulcers – enhancing patient comfort and mucosal healing.",
+                gradient: "from-blue-50 to-blue-100",
+                color: "text-blue-900"
+              },
+              {
+                title: "Pancreatin Enzymes",
+                description: "Supports digestion by supplementing natural enzymes in patients with pancreatic insufficiency, improving nutrient absorption and GI health.",
+                gradient: "from-green-50 to-green-100",
+                color: "text-green-900"
+              },
+              {
+                title: "Liver Care & Hepatoprotection",
+                description: "Science-backed formulations for detoxification, regeneration, and protection of liver cells, targeting both acute and chronic hepatic conditions.",
+                gradient: "from-yellow-50 to-yellow-100",
+                color: "text-yellow-800"
+              },
+              {
+                title: "GI Wellness",
+                description: "A holistic approach to gastrointestinal health through probiotics, prebiotics, and gut-focused therapies promoting optimal microbiome balance.",
+                gradient: "from-indigo-50 to-indigo-100",
+                color: "text-indigo-800"
+              },
+              {
+                title: "Protein & Amino Acid Nutrition",
+                description: "Essential nutritional support for recovery, muscle maintenance, and metabolic function—ideal for patients with compromised GI absorption.",
+                gradient: "from-pink-50 to-pink-100",
+                color: "text-pink-800"
+              },
+              {
+                title: "Custom Pharma Solutions",
+                description: "Flexible and doctor-centric product development for specific therapeutic gaps, aligned with ethical marketing and personalized care needs.",
+                gradient: "from-gray-50 to-gray-100",
+                color: "text-gray-800"
+              }
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                className={`bg-gradient-to-br ${item.gradient} p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow`}
+                variants={slideInFromBottom}
+                whileHover={{ scale: 1.05, y: -10 }}
+                transition={{ duration: 0.3 }}
+              >
+                <motion.h3 
+                  className={`text-xl font-semibold ${item.color} mb-2`}
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  {item.title}
+                </motion.h3>
+                <motion.p 
+                  className="text-gray-700"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 + 0.2 }}
+                >
+                  {item.description}
+                </motion.p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Final CTA Section */}
+      <motion.section 
+        className="bg-[#0B1D59] text-white py-20 px-6 overflow-hidden"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        variants={fadeInUp}
+      >
+        <div className="max-w-6xl mx-auto text-center">
+          <motion.h2 
+            className="text-3xl md:text-4xl font-bold mb-6"
+            variants={fadeInUp}
+          >
+            GASTRO NOVA – Your Trusted Ally in Digestive and Liver Health
+          </motion.h2>
+          <motion.p 
+            className="text-md md:text-l text-gray-200 leading-relaxed max-w-3xl mx-auto"
+            variants={fadeInUp}
+          >
+            Whether you're a healthcare professional, pharmacist, patient, or strategic partner,
+            <span className="font-semibold text-white"> GASTRO NOVA</span> is here to support your journey toward better
+            gastrointestinal and liver wellness. Backed by decades of specialized expertise, we are committed to delivering
+            impactful, high-quality solutions that improve lives — every single day.
+          </motion.p>
+
+          <motion.p 
+            className="mt-6 text-xl font-semibold text-[#56E0C1] tracking-wide"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+          >
+            GASTRO NOVA — Nurturing Wellness, Transforming Care.
+          </motion.p>
+        </div>
+      </motion.section>
     </div>
   );
 };
