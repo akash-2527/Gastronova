@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import logo from '../assets/kk.png';
+import { path } from 'framer-motion/client';
 
 const Logo = () => (
   <motion.div 
@@ -41,7 +42,10 @@ const Footer = () => {
   const navItems = [
     { name: 'Home', path: '/' },
     { name: 'About us', path: '/about' },
-    { name: 'Contact', path: '/contact' }
+    { name: 'Careers', path: '/careers' },
+    { name: 'Contact', path: '/contact' },
+    {name:'Product Related Query',path:'/product-related-query' },
+    
   ];
 
   // Function to check if current route is active
@@ -216,7 +220,7 @@ const Footer = () => {
               transition: { duration: 0.3 }
             }}
           >
-            &copy; 2025 Gastro Nova. All rights reserved.
+            &copy;Gastro Nova. All rights reserved.
           </motion.p>
         </motion.div>
       </div>

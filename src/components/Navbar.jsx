@@ -30,7 +30,8 @@ const Navigation = () => {
   const navItems = [
     { name: 'home', path: '/' },
     { name: 'about us', path: '/about' },
-    { name: 'contact', path: '/contact' }
+    { name: 'careers', path: '/careers' },
+    { name: 'contact', path: '/contact' },
   ];
 
   // Function to check if current route is active

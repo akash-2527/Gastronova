@@ -5,6 +5,9 @@ import HomePage from './components/Home';
 import AboutPage from './components/About.jsx';
 import ContactPage from './components/Contact';
 import Footer from './components/Footer';
+import ProductsQuery from './components/ProductQuery.jsx';  
+// import Careers from './components/Careers.jsx';
+import Careers from './components/Careers.jsx'; 
 
 const App = () => {
   return (
@@ -18,7 +21,11 @@ const App = () => {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
+            <Route path="/careers" element={<Careers />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/product-related-query" element={<ProductsQuery />} />
+            
+            
           </Routes>
         </main>
         

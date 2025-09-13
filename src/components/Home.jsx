@@ -1,17 +1,16 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-const images = {
-  mission: '/src/assets/mission.png',
-  vision: '/src/assets/vision.png',
-  l: '/src/assets/l.png',
-  s: '/src/assets/s.png',
-  p: '/src/assets/p.png',
-  b: '/src/assets/b.png',
-  exp: '/src/assets/exp.png'
-};
+// Import images using ES6 import statements
+import missionImg from '/src/assets/mission.png';
+import visionImg from '/src/assets/vision.png';
+import lImg from '/src/assets/l.png';
+import sImg from '/src/assets/s.png';
+import pImg from '/src/assets/p.png';
+import bImg from '/src/assets/b.png';
+import expImg from '/src/assets/exp.png';
 
 // Animation variants
 const fadeInUp = {
@@ -70,7 +69,8 @@ const slideInFromBottom = {
   }
 };
 
-const HomePage = ({ setActiveSection }) => {
+const HomePage = () => {
+  const navigate = useNavigate();
   return (
     <div className="pt-20">
       {/* Hero Section */}
@@ -96,7 +96,7 @@ const HomePage = ({ setActiveSection }) => {
                 animate="visible"
               >
                 <motion.button
-                  onClick={() => setActiveSection('about us')}
+                  onClick={() => navigate('/about')}
                   className="bg-green-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
                   variants={scaleIn}
                   whileHover={{ scale: 1.05 }}
@@ -105,7 +105,7 @@ const HomePage = ({ setActiveSection }) => {
                   Learn More <ChevronRight className="w-4 h-4" />
                 </motion.button>
                 <motion.button
-                  onClick={() => setActiveSection('contact')}
+                  onClick={() => navigate('/contact')}
                   className="border-2 border-blue-900 text-blue-900 px-8 py-3 rounded-lg font-semibold hover:bg-blue-900 hover:text-white transition-colors"
                   variants={scaleIn}
                   whileHover={{ scale: 1.05 }}
@@ -170,7 +170,7 @@ const HomePage = ({ setActiveSection }) => {
             variants={fadeInRight}
           >
             <motion.img 
-              src={images.mission} 
+              src={missionImg} 
               alt="Mission" 
               className="h-74 object-cover rounded-2xl"
               whileHover={{ scale: 1.05 }}
@@ -193,7 +193,7 @@ const HomePage = ({ setActiveSection }) => {
           >
             <div className="w-full h-74 flex items-center justify-center">
               <motion.img 
-                src={images.vision} 
+                src={visionImg} 
                 alt="vision" 
                 className="h-74 object-cover rounded-2xl"
                 whileHover={{ scale: 1.05 }}
@@ -248,10 +248,10 @@ const HomePage = ({ setActiveSection }) => {
             variants={staggerContainer}
           >
             {[
-              { img: images.l, title: "Liver Care", bg: "bg-green-200", color: "text-green-900" },
-              { img: images.s, title: "Gut Health", bg: "bg-green-100", color: "text-green-900" },
-              { img: images.b, title: "Amino Acid / Protein", bg: "bg-cyan-100", color: "text-cyan-900" },
-              { img: images.p, title: "OTC", bg: "bg-blue-100", color: "text-blue-900" }
+              { img: lImg, title: "Liver Care", bg: "bg-green-200", color: "text-green-900" },
+              { img: sImg, title: "Gut Health", bg: "bg-green-100", color: "text-green-900" },
+              { img: bImg, title: "Amino Acid / Protein", bg: "bg-cyan-100", color: "text-cyan-900" },
+              { img: pImg, title: "OTC", bg: "bg-blue-100", color: "text-blue-900" }
             ].map((item, index) => (
               <motion.div
                 key={index}
@@ -274,74 +274,7 @@ const HomePage = ({ setActiveSection }) => {
         </div>
       </section>
 
-      {/* Expertise Section */}
-      <section className="py-24 bg-white px-6 overflow-hidden">
-        <div className="max-w-7xl mx-auto">
-          <motion.h2 
-            className="text-4xl font-bold text-gray-800 text-center mb-16"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-          >
-            Our Expertise
-          </motion.h2>
-
-          <motion.div 
-            className="grid md:grid-cols-2 items-center text-center justify-center gap-6"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            variants={staggerContainer}
-          >
-            <motion.div 
-              className="flex flex-col items-center justify-center md:items-center text-center md:text-right"
-              variants={fadeInLeft}
-            >
-              <motion.div 
-                className="w-20 h-20 mb-6 justify-center text-center items-center"
-                initial={{ opacity: 0, scale: 0.5 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                variants={fadeInUp}
-                transition={{ duration: 0.5 }}
-              >
-                <img src={images.exp} alt="Experience Icon" className="w-full h-full object-contain transform scale-x-[-1]" />
-              </motion.div>
-              <motion.h3 
-                className="text-5xl font-bold text-gray-800 mb-2"
-                initial={{ opacity: 0, scale: 0.5 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-              >
-                25 +
-              </motion.h3>
-              <motion.p 
-                className="text-lg text-gray-500"
-                variants={fadeInUp}
-              >
-                Years Of Experience
-              </motion.p>
-            </motion.div>
-
-            <motion.div variants={fadeInRight}>
-              <motion.p 
-                className="text-xl text-gray-700 leading-relaxed "
-                variants={fadeInUp}
-              >
-                We sincerely value your trust as we embark on this exciting new journey.
-                Backed by over <span className="font-semibold text-blue-900">25 years of industry expertise</span>,
-                our team is committed to delivering high-quality pharmaceutical solutions with
-                <span className="text-green-700 font-medium"> care</span>,
-                <span className="text-green-700 font-medium"> ethics</span>, and
-                <span className="text-green-700 font-medium"> excellence</span>.
-                Your continued support is deeply appreciated.
-              </motion.p>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
+      
 
       {/* Product Portfolio Section */}
       <section className="py-20 bg-gradient-to-br from-blue-50 to-green-50 px-4 overflow-hidden">
