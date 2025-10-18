@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useCallback  } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import banner from '../assets/banner.jpg';
 import img2 from '../assets/imgs2.jpg';
@@ -81,8 +81,6 @@ const Careers = () => {
   const [submitting, setSubmitting] = useState(false);
   const [subscribing, setSubscribing] = useState(false);
   const [retryAttempts, setRetryAttempts] = useState(0);
-  // const [error, setError] = useState(null);
-  // const [successMessage, setSuccessMessage] = useState('');
   const [jobsError, setJobsError] = useState(null);
   const [applicationError, setApplicationError] = useState(null);
   const [newsletterError, setNewsletterError] = useState(null);
@@ -95,7 +93,6 @@ const Careers = () => {
     position: '',
     cv: null
   });
-  // Add these new pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState({
     current_page: 1,
@@ -105,8 +102,6 @@ const Careers = () => {
     has_next_page: false,
     has_prev_page: false
   });
-
-
   const [filterOptions, setFilterOptions] = useState({
     locations: [],
     departments: [],
@@ -115,46 +110,44 @@ const Careers = () => {
   const [positions, setPositions] = useState([]);
   const [loadingFilters, setLoadingFilters] = useState(false);
 
-
-
   // Add EmailJS configuration here
-  const EMAILJS_SERVICE_ID = 'service_a3s9ogl'; // Replace with your EmailJS service ID
-  const EMAILJS_TEMPLATE_ID = 'template_a980xk3'; // Replace with your EmailJS template ID
-  const EMAILJS_PUBLIC_KEY = 'igTuevCNeN7KGvGeP'; // Replace with your EmailJS public key
-      
-  // Fetch jobs from backend
+  const EMAILJS_SERVICE_ID = 'service_a3s9ogl';
+  const EMAILJS_TEMPLATE_ID = 'template_a980xk3';
+  const EMAILJS_PUBLIC_KEY = 'igTuevCNeN7KGvGeP';
+
+  // Fetch jobs from backend - FIXED VERSION
   const fetchJobs = useCallback(async (filters = {}, page = 1, showLoading = true) => {
-  try {
-    if (showLoading) {
-      setLoading(true);
-    }
-    setJobsError(null);
-    
-    const response = await apiService.getJobs(filters, page, 10);
-    
-    if (response && response.jobs) {
-      setJobOpenings(response.jobs);
-      setFilteredJobs(response.jobs);
-      setPagination(response.pagination || {
-        current_page: 1,
-        total_pages: 1,
-        total_records: response.jobs.length,
-        per_page: 10,
-        has_next_page: false,
-        has_prev_page: false
-      });
-      setCurrentPage(page);
-      setRetryAttempts(0);
-    } else {
-      throw new Error('Invalid response format');
-    }
-  } catch (error) {
-    console.error('Error fetching jobs:', error);
-    setJobsError('Failed to load job openings. Please try again.');
-    
-    // Fallback data only on first load or after 3 retry attempts
-    if (page === 1 && retryAttempts < 3) {
-      setRetryAttempts(prev => prev + 1);
+    try {
+      if (showLoading) {
+        setLoading(true);
+      }
+      setJobsError(null);
+      
+      console.log('Fetching jobs with filters:', filters, 'page:', page);
+      
+      const response = await apiService.getJobs(filters, page, 10);
+      
+      if (response && response.jobs) {
+        console.log('Jobs fetched successfully:', response.jobs.length, 'jobs');
+        setJobOpenings(response.jobs);
+        setPagination(response.pagination || {
+          current_page: 1,
+          total_pages: 1,
+          total_records: response.jobs.length,
+          per_page: 10,
+          has_next_page: false,
+          has_prev_page: false
+        });
+        setCurrentPage(page);
+        setRetryAttempts(0);
+      } else {
+        throw new Error('Invalid response format');
+      }
+    } catch (error) {
+      console.error('Error fetching jobs:', error);
+      setJobsError('Failed to load job openings. Please try again.');
+      
+      // Enhanced fallback data
       const fallbackJobs = [
         {
           position: "Business Executive",
@@ -165,7 +158,7 @@ const Careers = () => {
         {
           position: "Area Sales Manager",
           location: "Vijayawada",
-          department: "Sales & Marketing",
+          department: "Sales & Marketing", 
           experience: "2-5 years"
         },
         {
@@ -175,8 +168,8 @@ const Careers = () => {
           experience: "1-3 years"
         }
       ];
+      
       setJobOpenings(fallbackJobs);
-      setFilteredJobs(fallbackJobs);
       setPagination({
         current_page: 1,
         total_pages: 1,
@@ -185,62 +178,108 @@ const Careers = () => {
         has_next_page: false,
         has_prev_page: false
       });
+      
+      setRetryAttempts(prev => prev + 1);
+    } finally {
+      if (showLoading) {
+        setLoading(false);
+      }
     }
-  } finally {
-    if (showLoading) {
-      setLoading(false);
-    }
-  }
-}, [retryAttempts]);
+  }, [retryAttempts]);
 
-  // Fetch jobs on component mount
+  // Filter jobs based on selections - FIXED VERSION
   useEffect(() => {
-  const initializeData = async () => {
-    try {
-      await Promise.all([
-        fetchJobs({}, 1, true),
-        fetchFilterOptions(),
-        fetchPositions()
-      ]);
-    } catch (error) {
-      console.error('Error initializing data:', error);
-    }
-  };
-  
-  initializeData();
-}, []);
+    const applyFilters = () => {
+      let filtered = jobOpenings;
+      
+      if (selectedLocation !== 'All') {
+        filtered = filtered.filter(job => job.location === selectedLocation);
+      }
+      
+      if (selectedDepartment !== 'All') {
+        filtered = filtered.filter(job => job.department === selectedDepartment);
+      }
+      
+      if (selectedExperience !== 'All') {
+        filtered = filtered.filter(job => job.experience === selectedExperience);
+      }
+      
+      console.log('Filtered jobs:', filtered.length);
+      setFilteredJobs(filtered);
+    };
 
-  // Filter jobs based on selections
+    applyFilters();
+  }, [jobOpenings, selectedLocation, selectedDepartment, selectedExperience]);
+
+  // Handle filter changes - FIXED VERSION
   useEffect(() => {
-  const filters = {};
-  if (selectedLocation !== 'All') filters.location = selectedLocation;
-  if (selectedDepartment !== 'All') filters.department = selectedDepartment;
-  if (selectedExperience !== 'All') filters.experience = selectedExperience;
-  
-  // Reset to page 1 when filters change
-  setCurrentPage(1);
-  fetchJobs(filters, 1, true);
-  }, [selectedLocation, selectedDepartment, selectedExperience, fetchJobs]);
-
-  const handlePageChange = useCallback((newPage) => {
-  if (newPage >= 1 && newPage <= pagination.total_pages) {
     const filters = {};
     if (selectedLocation !== 'All') filters.location = selectedLocation;
     if (selectedDepartment !== 'All') filters.department = selectedDepartment;
     if (selectedExperience !== 'All') filters.experience = selectedExperience;
     
-    fetchJobs(filters, newPage, true);
-  }
-}, [selectedLocation, selectedDepartment, selectedExperience, pagination.total_pages, fetchJobs]);
+    // Reset to page 1 when filters change
+    setCurrentPage(1);
+    fetchJobs(filters, 1, true);
+  }, [selectedLocation, selectedDepartment, selectedExperience, fetchJobs]);
 
-const retryFetchJobs = useCallback(() => {
-  const filters = {};
-  if (selectedLocation !== 'All') filters.location = selectedLocation;
-  if (selectedDepartment !== 'All') filters.department = selectedDepartment;
-  if (selectedExperience !== 'All') filters.experience = selectedExperience;
-  
-  fetchJobs(filters, currentPage, true);
-}, [selectedLocation, selectedDepartment, selectedExperience, currentPage, fetchJobs]);
+  // Fetch jobs on component mount - FIXED VERSION
+  useEffect(() => {
+    const initializeData = async () => {
+      try {
+        setLoading(true);
+        console.log('Initializing careers data...');
+        
+        // Fetch jobs first, then other data
+        await fetchJobs({}, 1, false);
+        
+        // Then fetch filter options and positions
+        await Promise.all([
+          fetchFilterOptions(),
+          fetchPositions()
+        ]);
+        
+        console.log('Careers data initialized successfully');
+      } catch (error) {
+        console.error('Error initializing data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    initializeData();
+  }, []);
+
+  // Debug useEffect - you can remove this later
+  useEffect(() => {
+    console.log('Current state:', {
+      jobOpenings: jobOpenings.length,
+      filteredJobs: filteredJobs.length,
+      loading,
+      jobsError,
+      filterOptions
+    });
+  }, [jobOpenings, filteredJobs, loading, jobsError, filterOptions]);
+
+  const handlePageChange = useCallback((newPage) => {
+    if (newPage >= 1 && newPage <= pagination.total_pages) {
+      const filters = {};
+      if (selectedLocation !== 'All') filters.location = selectedLocation;
+      if (selectedDepartment !== 'All') filters.department = selectedDepartment;
+      if (selectedExperience !== 'All') filters.experience = selectedExperience;
+      
+      fetchJobs(filters, newPage, true);
+    }
+  }, [selectedLocation, selectedDepartment, selectedExperience, pagination.total_pages, fetchJobs]);
+
+  const retryFetchJobs = useCallback(() => {
+    const filters = {};
+    if (selectedLocation !== 'All') filters.location = selectedLocation;
+    if (selectedDepartment !== 'All') filters.department = selectedDepartment;
+    if (selectedExperience !== 'All') filters.experience = selectedExperience;
+    
+    fetchJobs(filters, currentPage, true);
+  }, [selectedLocation, selectedDepartment, selectedExperience, currentPage, fetchJobs]);
 
   // Smooth scroll function
   const scrollToSection = (sectionId) => {
@@ -339,8 +378,6 @@ const retryFetchJobs = useCallback(() => {
     
     try {
       setSubmitting(true);
-      // setError(null);
-      // setSuccessMessage('');
       setApplicationError(null);
       setApplicationSuccess('');
 
@@ -352,7 +389,6 @@ const retryFetchJobs = useCallback(() => {
       // Submit application
       await apiService.submitApplication(formData);
       
-      // setSuccessMessage('Application submitted successfully! We will contact you soon.');
       setApplicationSuccess('Application submitted successfully! We will contact you soon.');
       
       // Reset form
@@ -364,7 +400,6 @@ const retryFetchJobs = useCallback(() => {
         cv: null
       });
 
-      
       // Reset file input
       const fileInput = document.getElementById('cv-upload');
       if (fileInput) {
@@ -373,102 +408,94 @@ const retryFetchJobs = useCallback(() => {
 
     } catch (error) {
       console.error('Application submission error:', error);
-      // setError(error.message || 'Failed to submit application. Please try again.');
       setApplicationError(error.message || 'Failed to submit application. Please try again.');
     } finally {
       setSubmitting(false);
     }
   };
 
-// Handle newsletter subscription
-const handleNewsletterSubmit = async (e) => {
-  e.preventDefault();
-  
-  try {
-    setSubscribing(true);
-    // setError(null);
-    // setSuccessMessage('');
-    setNewsletterError(null);
-    setNewsletterSuccess('');
-
-    const email = e.target.email.value.trim();
+  // Handle newsletter subscription
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault();
     
-    if (!email) {
-      throw new Error('Please enter your email address');
+    try {
+      setSubscribing(true);
+      setNewsletterError(null);
+      setNewsletterSuccess('');
+
+      const email = e.target.email.value.trim();
+      
+      if (!email) {
+        throw new Error('Please enter your email address');
+      }
+
+      // Step 1: Ask backend if this email is already subscribed
+      const subscriptionResponse = await apiService.subscribeNewsletter(email);
+      
+      if (subscriptionResponse?.alreadySubscribed) {
+        setNewsletterError('You are already subscribed to our newsletter.');
+        return; // Stop here, don't send email
+      }
+
+      // Step 2: Send confirmation email only if they are new
+      const templateParams = {
+        to_email: email,
+        to_name: email.split('@')[0], // Part before @ as name
+        company_name: 'Gastro Nova Pharma',
+        message: 'Thank you for subscribing to our newsletter! You will receive updates about new job openings and company news.'
+      };
+
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        templateParams,
+        EMAILJS_PUBLIC_KEY
+      );
+      
+      setNewsletterSuccess('Successfully subscribed to newsletter! Check your email for confirmation.');
+      e.target.reset();
+
+    } catch (error) {
+      console.error('Newsletter subscription error:', error);
+      setNewsletterError(error.message || 'Failed to subscribe. Please try again.');
+    } finally {
+      setSubscribing(false);
     }
+  };
 
-    // Step 1: Ask backend if this email is already subscribed
-    const subscriptionResponse = await apiService.subscribeNewsletter(email);
-    
-    if (subscriptionResponse?.alreadySubscribed) {
-      // setError('You are already subscribed to our newsletter.');
-      setNewsletterError('You are already subscribed to our newsletter.');
-      return; // Stop here, don't send email
+  // Add these functions after the fetchJobs function
+  const fetchFilterOptions = async () => {
+    try {
+      setLoadingFilters(true);
+      const options = await apiService.getFilterOptions();
+      setFilterOptions(options);
+    } catch (error) {
+      console.error('Error fetching filter options:', error);
+      // Fallback options if API fails
+      setFilterOptions({
+        locations: ['Hyderabad', 'Vizag', 'Kurnool', 'Vijayawada'],
+        departments: ['Sales & Marketing', 'Marketing'],
+        experiences: ['0-2 years', '1-3 years', '2-5 years']
+      });
+    } finally {
+      setLoadingFilters(false);
     }
+  };
 
-    // Step 2: Send confirmation email only if they are new
-    const templateParams = {
-      to_email: email,
-      to_name: email.split('@')[0], // Part before @ as name
-      company_name: 'Gastro Nova Pharma',
-      message: 'Thank you for subscribing to our newsletter! You will receive updates about new job openings and company news.'
-    };
-
-    await emailjs.send(
-      EMAILJS_SERVICE_ID,
-      EMAILJS_TEMPLATE_ID,
-      templateParams,
-      EMAILJS_PUBLIC_KEY
-    );
-    
-    // setSuccessMessage('Successfully subscribed to newsletter! Check your email for confirmation.');
-    setNewsletterSuccess('Successfully subscribed to newsletter! Check your email for confirmation.');
-    e.target.reset();
-
-  } catch (error) {
-    console.error('Newsletter subscription error:', error);
-    // setError(error.message || 'Failed to subscribe. Please try again.');
-    setNewsletterError(error.message || 'Failed to subscribe. Please try again.');
-  } finally {
-    setSubscribing(false);
-  }
-};
-
-
-// Add these functions after the fetchJobs function
-const fetchFilterOptions = async () => {
-  try {
-    setLoadingFilters(true);
-    const options = await apiService.getFilterOptions();
-    setFilterOptions(options);
-  } catch (error) {
-    console.error('Error fetching filter options:', error);
-    // Fallback options if API fails
-    setFilterOptions({
-      locations: ['Hyderabad', 'Vizag', 'Kurnool', 'Vijayawada'],
-      departments: ['Sales & Marketing', 'Marketing'],
-      experiences: ['0-2 years', '1-3 years', '2-5 years']
-    });
-  } finally {
-    setLoadingFilters(false);
-  }
-};
-
-const fetchPositions = async () => {
-  try {
-    const positionsData = await apiService.getPositions();
-    setPositions(positionsData);
-  } catch (error) {
-    console.error('Error fetching positions:', error);
-    // Fallback to hardcoded positions if API fails
-    setPositions([
-      'Business Executive',
-      'Area Sales Manager', 
-      'Product Executive'
-    ]);
-  }
-};
-
+  const fetchPositions = async () => {
+    try {
+      const positionsData = await apiService.getPositions();
+      setPositions(positionsData);
+    } catch (error) {
+      console.error('Error fetching positions:', error);
+      // Fallback to hardcoded positions if API fails
+      setPositions([
+        'Business Executive',
+        'Area Sales Manager', 
+        'Product Executive'
+      ]);
+    }
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen mt-8">
@@ -545,7 +572,6 @@ const fetchPositions = async () => {
             </motion.div>
           </div>
         </div>
-
       </section>
 
       {/* Current Openings Section */}
@@ -624,13 +650,14 @@ const fetchPositions = async () => {
               </div>
             </motion.div>
 
-            {/* Loading State */}
+            {/* Loading State - ENHANCED */}
             {loading && (
               <motion.div variants={itemVariants} className="text-center py-12">
                 <div className="inline-flex items-center gap-3">
                   <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
                   <span className="text-lg text-gray-600">Loading job openings...</span>
                 </div>
+                <p className="text-sm text-gray-500 mt-2">Fetching the latest opportunities for you</p>
               </motion.div>
             )}
 
@@ -667,12 +694,12 @@ const fetchPositions = async () => {
               </motion.div>
             )}
 
-            {/* Job Listings */}
+            {/* Job Listings - FIXED VERSION */}
             {!loading && filteredJobs.length > 0 && (
               <motion.div variants={containerVariants} className="space-y-6">
                 {filteredJobs.map((job, index) => (
                   <motion.div
-                    key={index}
+                    key={`${job.position}-${job.location}-${index}`}
                     variants={itemVariants}
                     className="bg-white border border-slate-200 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 group"
                     whileHover={{ y: -5 }}
@@ -680,20 +707,20 @@ const fetchPositions = async () => {
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between">
                       <div className="flex-1">
                         <h3 className="text-2xl font-bold text-slate-800 mb-4 group-hover:text-blue-600 transition-colors">
-                          {job.position}
+                          {job.position || 'Position Not Specified'}
                         </h3>
                         <div className="flex flex-wrap gap-6 text-slate-600">
                           <div className="flex items-center gap-2">
                             <MapPin className="w-5 h-5 text-blue-500" />
-                            <span className="font-medium">{job.location}</span>
+                            <span className="font-medium">{job.location || 'Location Not Specified'}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Building className="w-5 h-5 text-teal-500" />
-                            <span className="font-medium">{job.department}</span>
+                            <span className="font-medium">{job.department || 'Department Not Specified'}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Award className="w-5 h-5 text-purple-500" />
-                            <span className="font-medium">{job.experience}</span>
+                            <span className="font-medium">{job.experience || 'Experience Not Specified'}</span>
                           </div>
                         </div>
                       </div>
@@ -711,6 +738,7 @@ const fetchPositions = async () => {
               </motion.div>
             )}
           </motion.div>
+          
           {/* Pagination */}
           {!loading && !jobsError && pagination.total_pages > 1 && (
             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-between mt-12 gap-4">
@@ -786,6 +814,7 @@ const fetchPositions = async () => {
           )}
         </div>
       </section>
+
 
       {/* Life at Gastro Nova */}
 <section className="py-20 bg-gradient-to-br from-slate-50 to-blue-50">

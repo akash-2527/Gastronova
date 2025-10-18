@@ -6,8 +6,9 @@ import AboutPage from './components/About.jsx';
 import ContactPage from './components/Contact';
 import Footer from './components/Footer';
 import ProductsQuery from './components/ProductQuery.jsx';  
-// import Careers from './components/Careers.jsx';
-import Careers from './components/Careers.jsx'; 
+import Careers from './components/Careers.jsx';
+import ProductsPage from './components/Products.jsx';
+import ProductDetail from './components/ProductDetail';
 
 const App = () => {
   return (
@@ -24,6 +25,8 @@ const App = () => {
             <Route path="/careers" element={<Careers />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/product-related-query" element={<ProductsQuery />} />
+            <Route path="/products" element={<ProductsPage />} />
+            <Route path="/products/:slug" element={<ProductDetail />} />
             
             
           </Routes>
