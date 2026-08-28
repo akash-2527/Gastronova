@@ -71,6 +71,12 @@ const slideInFromBottom = {
 
 const HomePage = () => {
   const navigate = useNavigate();
+
+  const handleCategoryClick = (category) => {
+    // Navigate to products page with category filter
+    navigate(`/products?category=${encodeURIComponent(category)}`);
+  };
+
   return (
     <div className="pt-20">
       {/* Hero Section */}
@@ -248,17 +254,18 @@ const HomePage = () => {
             variants={staggerContainer}
           >
             {[
-              { img: lImg, title: "Liver Care", bg: "bg-green-200", color: "text-green-900" },
-              { img: sImg, title: "Gut Health", bg: "bg-green-100", color: "text-green-900" },
-              { img: bImg, title: "Amino Acid / Protein", bg: "bg-cyan-100", color: "text-cyan-900" },
-              { img: pImg, title: "OTC", bg: "bg-blue-100", color: "text-blue-900" }
+              { img: lImg, title: "Liver Care", bg: "bg-green-200", color: "text-green-900", category: "liver care" },
+              { img: sImg, title: "Gut Health", bg: "bg-green-100", color: "text-green-900", category: "gut health" },
+              { img: bImg, title: "Amino Acid / Protein", bg: "bg-cyan-100", color: "text-cyan-900", category: "amino acid/proteins" },
+              { img: pImg, title: "OTC", bg: "bg-blue-100", color: "text-blue-900", category: "otc" }
             ].map((item, index) => (
               <motion.div
                 key={index}
-                className={`${item.bg} rounded-xl p-6 flex flex-col items-center text-center hover:shadow-lg transition-shadow`}
+                className={`${item.bg} rounded-xl p-6 flex flex-col items-center text-center hover:shadow-lg transition-shadow cursor-pointer`}
                 variants={scaleIn}
                 whileHover={{ scale: 1.05, y: -5 }}
                 transition={{ duration: 0.3 }}
+                onClick={() => handleCategoryClick(item.category)}
               >
                 <motion.span 
                   className="text-5xl mb-4"
@@ -273,8 +280,6 @@ const HomePage = () => {
           </motion.div>
         </div>
       </section>
-
-      
 
       {/* Product Portfolio Section */}
       <section className="py-20 bg-gradient-to-br from-blue-50 to-green-50 px-4 overflow-hidden">

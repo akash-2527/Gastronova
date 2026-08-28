@@ -1,5 +1,5 @@
 // const API_BASE_URL = 'https://localhost/gastronova-backend/api';
-const API_BASE_URL = 'https://admin.gastronova.in/api';
+const API_BASE_URL = 'https://admin-gastronova.webhostdevs.com/api';
 
 class ApiService {
     async handleApiCall(url, options = {}) {
@@ -77,11 +77,13 @@ class ApiService {
         return this.handleApiCall(`${API_BASE_URL}/jobs/get_jobs.php?${params}`);
     }
 
-    async getMedications(filters = {}, page = 1, limit = 10) {
+    // In your api.js - update getMedications method
+    async getMedications(filters = {}, page = 1, limit = 20) {
         const params = new URLSearchParams();
         
         if (filters.search) params.append('search', filters.search);
         if (filters.status) params.append('status', filters.status);
+        if (filters.category) params.append('category', filters.category); // NEW: Add category filter
         params.append('page', page.toString());
         params.append('limit', limit.toString());
 

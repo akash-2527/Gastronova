@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Instagram, Linkedin } from 'lucide-react';
 import logo from '../assets/kk.png';
 import { path } from 'framer-motion/client';
 
@@ -201,6 +202,43 @@ const Footer = () => {
               >
                 contact-us@gastronova.in
               </motion.p>
+              
+              {/* Social Media Icons */}
+              <motion.div 
+                className="flex gap-4 pt-1"
+                variants={linkVariants}
+              >
+                <motion.a
+                  href="https://www.instagram.com/gastronova.in"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-900"
+                  whileHover={{ 
+                    scale: 1.2,
+                    color: "#059669",
+                    rotate: 5,
+                    transition: { duration: 0.2 }
+                  }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <Instagram size={20} />
+                </motion.a>
+                <motion.a
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-900"
+                  whileHover={{ 
+                    scale: 1.2,
+                    color: "#059669",
+                    rotate: -5,
+                    transition: { duration: 0.2 }
+                  }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <Linkedin size={20} />
+                </motion.a>
+              </motion.div>
             </motion.div>
           </motion.div>
         </motion.div>

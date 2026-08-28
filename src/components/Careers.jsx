@@ -116,20 +116,21 @@ const Careers = () => {
   const EMAILJS_PUBLIC_KEY = 'igTuevCNeN7KGvGeP';
 
   // Fetch jobs from backend - FIXED VERSION
-  const fetchJobs = useCallback(async (filters = {}, page = 1, showLoading = true) => {
+  const fetchJobs = useCallback(async (page = 1, showLoading = true) => {
     try {
       if (showLoading) {
         setLoading(true);
       }
       setJobsError(null);
       
-      console.log('Fetching jobs with filters:', filters, 'page:', page);
+      console.log('Fetching jobs page:', page);
       
-      const response = await apiService.getJobs(filters, page, 10);
+      const response = await apiService.getJobs({}, page, 10);
       
       if (response && response.jobs) {
         console.log('Jobs fetched successfully:', response.jobs.length, 'jobs');
         setJobOpenings(response.jobs);
+        setFilteredJobs(response.jobs); // Initialize filteredJobs with all jobs
         setPagination(response.pagination || {
           current_page: 1,
           total_pages: 1,
@@ -147,29 +148,52 @@ const Careers = () => {
       console.error('Error fetching jobs:', error);
       setJobsError('Failed to load job openings. Please try again.');
       
-      // Enhanced fallback data
+      // Enhanced fallback data with proper structure
       const fallbackJobs = [
         {
+          id: 1,
           position: "Business Executive",
           location: "Hyderabad",
           department: "Sales & Marketing",
-          experience: "0-2 years"
+          experience: "0-2 years",
+          description: "Field sales role focusing on gastroenterology products"
         },
         {
+          id: 2,
           position: "Area Sales Manager",
           location: "Vijayawada",
           department: "Sales & Marketing", 
-          experience: "2-5 years"
+          experience: "2-5 years",
+          description: "Managing sales team in Vijayawada region"
         },
         {
+          id: 3,
           position: "Product Executive",
           location: "Hyderabad",
           department: "Marketing",
-          experience: "1-3 years"
+          experience: "1-3 years",
+          description: "Product marketing and promotion"
+        },
+        {
+          id: 4,
+          position: "Medical Representative",
+          location: "Vizag",
+          department: "Sales & Marketing",
+          experience: "1-3 years",
+          description: "Medical detailing to healthcare professionals"
+        },
+        {
+          id: 5,
+          position: "Regional Manager",
+          location: "Kurnool",
+          department: "Sales & Marketing",
+          experience: "5-8 years",
+          description: "Regional sales management"
         }
       ];
       
       setJobOpenings(fallbackJobs);
+      setFilteredJobs(fallbackJobs); // Initialize filteredJobs with fallback data
       setPagination({
         current_page: 1,
         total_pages: 1,
@@ -187,41 +211,48 @@ const Careers = () => {
     }
   }, [retryAttempts]);
 
-  // Filter jobs based on selections - FIXED VERSION
+  // Filter jobs based on selections - CORRECTED VERSION
   useEffect(() => {
     const applyFilters = () => {
-      let filtered = jobOpenings;
+      console.log('Applying filters:', {
+        jobOpenings: jobOpenings.length,
+        selectedLocation,
+        selectedDepartment,
+        selectedExperience
+      });
+
+      let filtered = [...jobOpenings]; // Create a copy to avoid mutation
       
       if (selectedLocation !== 'All') {
-        filtered = filtered.filter(job => job.location === selectedLocation);
+        filtered = filtered.filter(job => 
+          job.location && job.location.toLowerCase().includes(selectedLocation.toLowerCase())
+        );
       }
       
       if (selectedDepartment !== 'All') {
-        filtered = filtered.filter(job => job.department === selectedDepartment);
+        filtered = filtered.filter(job => 
+          job.department && job.department.toLowerCase().includes(selectedDepartment.toLowerCase())
+        );
       }
       
       if (selectedExperience !== 'All') {
-        filtered = filtered.filter(job => job.experience === selectedExperience);
+        filtered = filtered.filter(job => 
+          job.experience && job.experience.toLowerCase().includes(selectedExperience.toLowerCase())
+        );
       }
       
-      console.log('Filtered jobs:', filtered.length);
+      console.log('Filtered jobs result:', filtered.length, filtered);
       setFilteredJobs(filtered);
     };
 
-    applyFilters();
+    // Only apply filters if we have jobs to filter
+    if (jobOpenings.length > 0) {
+      applyFilters();
+    } else {
+      // If no jobs, set filteredJobs to empty array
+      setFilteredJobs([]);
+    }
   }, [jobOpenings, selectedLocation, selectedDepartment, selectedExperience]);
-
-  // Handle filter changes - FIXED VERSION
-  useEffect(() => {
-    const filters = {};
-    if (selectedLocation !== 'All') filters.location = selectedLocation;
-    if (selectedDepartment !== 'All') filters.department = selectedDepartment;
-    if (selectedExperience !== 'All') filters.experience = selectedExperience;
-    
-    // Reset to page 1 when filters change
-    setCurrentPage(1);
-    fetchJobs(filters, 1, true);
-  }, [selectedLocation, selectedDepartment, selectedExperience, fetchJobs]);
 
   // Fetch jobs on component mount - FIXED VERSION
   useEffect(() => {
@@ -231,7 +262,7 @@ const Careers = () => {
         console.log('Initializing careers data...');
         
         // Fetch jobs first, then other data
-        await fetchJobs({}, 1, false);
+        await fetchJobs(1, false);
         
         // Then fetch filter options and positions
         await Promise.all([
@@ -250,36 +281,29 @@ const Careers = () => {
     initializeData();
   }, []);
 
-  // Debug useEffect - you can remove this later
+  // Debug useEffect
   useEffect(() => {
     console.log('Current state:', {
       jobOpenings: jobOpenings.length,
       filteredJobs: filteredJobs.length,
       loading,
       jobsError,
-      filterOptions
+      filterOptions,
+      selectedLocation,
+      selectedDepartment,
+      selectedExperience
     });
-  }, [jobOpenings, filteredJobs, loading, jobsError, filterOptions]);
+  }, [jobOpenings, filteredJobs, loading, jobsError, filterOptions, selectedLocation, selectedDepartment, selectedExperience]);
 
   const handlePageChange = useCallback((newPage) => {
     if (newPage >= 1 && newPage <= pagination.total_pages) {
-      const filters = {};
-      if (selectedLocation !== 'All') filters.location = selectedLocation;
-      if (selectedDepartment !== 'All') filters.department = selectedDepartment;
-      if (selectedExperience !== 'All') filters.experience = selectedExperience;
-      
-      fetchJobs(filters, newPage, true);
+      fetchJobs(newPage, true);
     }
-  }, [selectedLocation, selectedDepartment, selectedExperience, pagination.total_pages, fetchJobs]);
+  }, [pagination.total_pages, fetchJobs]);
 
   const retryFetchJobs = useCallback(() => {
-    const filters = {};
-    if (selectedLocation !== 'All') filters.location = selectedLocation;
-    if (selectedDepartment !== 'All') filters.department = selectedDepartment;
-    if (selectedExperience !== 'All') filters.experience = selectedExperience;
-    
-    fetchJobs(filters, currentPage, true);
-  }, [selectedLocation, selectedDepartment, selectedExperience, currentPage, fetchJobs]);
+    fetchJobs(currentPage, true);
+  }, [currentPage, fetchJobs]);
 
   // Smooth scroll function
   const scrollToSection = (sectionId) => {
@@ -463,19 +487,25 @@ const Careers = () => {
     }
   };
 
-  // Add these functions after the fetchJobs function
+  // Fetch filter options
   const fetchFilterOptions = async () => {
     try {
       setLoadingFilters(true);
       const options = await apiService.getFilterOptions();
-      setFilterOptions(options);
+      
+      // Ensure we always have arrays, even if API returns undefined
+      setFilterOptions({
+        locations: options?.locations || ['Hyderabad', 'Vizag', 'Kurnool', 'Vijayawada'],
+        departments: options?.departments || ['Sales & Marketing', 'Marketing'],
+        experiences: options?.experiences || ['0-2 years', '1-3 years', '2-5 years', '5-8 years']
+      });
     } catch (error) {
       console.error('Error fetching filter options:', error);
-      // Fallback options if API fails
+      // Enhanced fallback options if API fails
       setFilterOptions({
         locations: ['Hyderabad', 'Vizag', 'Kurnool', 'Vijayawada'],
         departments: ['Sales & Marketing', 'Marketing'],
-        experiences: ['0-2 years', '1-3 years', '2-5 years']
+        experiences: ['0-2 years', '1-3 years', '2-5 years', '5-8 years']
       });
     } finally {
       setLoadingFilters(false);
@@ -492,7 +522,9 @@ const Careers = () => {
       setPositions([
         'Business Executive',
         'Area Sales Manager', 
-        'Product Executive'
+        'Product Executive',
+        'Medical Representative',
+        'Regional Manager'
       ]);
     }
   };
@@ -648,6 +680,27 @@ const Careers = () => {
                   </select>
                 </div>
               </div>
+              
+              {/* Clear Filters Button */}
+              {(selectedLocation !== 'All' || selectedDepartment !== 'All' || selectedExperience !== 'All') && (
+                <div className="mt-6 flex items-center gap-4">
+                  <button 
+                    onClick={() => {
+                      setSelectedLocation('All');
+                      setSelectedDepartment('All');
+                      setSelectedExperience('All');
+                      console.log('Filters cleared');
+                    }}
+                    className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-lg"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    Clear all filters
+                  </button>
+                  <span className="text-sm text-gray-500">
+                    Showing {filteredJobs.length} of {jobOpenings.length} jobs
+                  </span>
+                </div>
+              )}
             </motion.div>
 
             {/* Loading State - ENHANCED */}
@@ -677,29 +730,12 @@ const Careers = () => {
               </motion.div>
             )}
 
-            {/* No Jobs Found */}
-            {!loading && !jobsError && filteredJobs.length === 0 && (
-              <motion.div variants={itemVariants} className="text-center py-12">
-                <div className="text-gray-500 text-lg">No job openings found matching your criteria.</div>
-                <button 
-                  onClick={() => {
-                    setSelectedLocation('All');
-                    setSelectedDepartment('All');
-                    setSelectedExperience('All');
-                  }}
-                  className="mt-4 text-blue-600 hover:text-blue-700 font-medium"
-                >
-                  Clear all filters
-                </button>
-              </motion.div>
-            )}
-
             {/* Job Listings - FIXED VERSION */}
             {!loading && filteredJobs.length > 0 && (
               <motion.div variants={containerVariants} className="space-y-6">
                 {filteredJobs.map((job, index) => (
                   <motion.div
-                    key={`${job.position}-${job.location}-${index}`}
+                    key={job.id || `${job.position}-${job.location}-${index}`}
                     variants={itemVariants}
                     className="bg-white border border-slate-200 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 group"
                     whileHover={{ y: -5 }}
@@ -723,6 +759,9 @@ const Careers = () => {
                             <span className="font-medium">{job.experience || 'Experience Not Specified'}</span>
                           </div>
                         </div>
+                        {job.description && (
+                          <p className="text-gray-600 mt-4">{job.description}</p>
+                        )}
                       </div>
                       <motion.button
                         onClick={() => scrollToSection('submit-resume')}
@@ -735,6 +774,57 @@ const Careers = () => {
                     </div>
                   </motion.div>
                 ))}
+              </motion.div>
+            )}
+
+            {/* Enhanced No Results State */}
+            {!loading && !jobsError && filteredJobs.length === 0 && jobOpenings.length > 0 && (
+              <motion.div variants={itemVariants} className="text-center py-16">
+                <div className="bg-slate-50 rounded-2xl p-12 border border-slate-200">
+                  <FileText className="w-16 h-16 text-slate-400 mx-auto mb-6" />
+                  <h3 className="text-2xl font-bold text-slate-700 mb-4">No Matching Positions Found</h3>
+                  <p className="text-gray-600 text-lg mb-6 max-w-md mx-auto">
+                    We couldn't find any job openings matching your current filter criteria.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button 
+                      onClick={() => {
+                        setSelectedLocation('All');
+                        setSelectedDepartment('All');
+                        setSelectedExperience('All');
+                      }}
+                      className="bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                      Clear All Filters
+                    </button>
+                    <button 
+                      onClick={retryFetchJobs}
+                      className="border border-slate-300 text-slate-700 px-8 py-3 rounded-xl font-semibold hover:bg-slate-50 transition-colors"
+                    >
+                      Refresh Jobs
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* No Jobs Available State */}
+            {!loading && !jobsError && jobOpenings.length === 0 && (
+              <motion.div variants={itemVariants} className="text-center py-16">
+                <div className="bg-slate-50 rounded-2xl p-12 border border-slate-200">
+                  <FileText className="w-16 h-16 text-slate-400 mx-auto mb-6" />
+                  <h3 className="text-2xl font-bold text-slate-700 mb-4">No Current Openings</h3>
+                  <p className="text-gray-600 text-lg mb-6 max-w-md mx-auto">
+                    There are no job openings at the moment. Please check back later or subscribe to our newsletter for updates.
+                  </p>
+                  <button 
+                    onClick={() => scrollToSection('newsletter')}
+                    className="bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+                  >
+                    Subscribe for Updates
+                  </button>
+                </div>
               </motion.div>
             )}
           </motion.div>
@@ -815,139 +905,138 @@ const Careers = () => {
         </div>
       </section>
 
-
       {/* Life at Gastro Nova */}
-<section className="py-20 bg-gradient-to-br from-slate-50 to-blue-50">
-  <div className="max-w-7xl mx-auto px-6">
-    <motion.div
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.2 }}
-      variants={containerVariants}
-    >
-      <motion.div variants={itemVariants} className="text-center mb-16">
-        <div className="flex items-center justify-center mb-6">
-          <div className="w-12 h-1 bg-gradient-to-r from-teal-600 to-blue-600"></div>
-          <Heart className="w-8 h-8 text-teal-600 mx-4" />
-          <div className="w-12 h-1 bg-gradient-to-l from-teal-600 to-blue-600"></div>
+      <section className="py-20 bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={containerVariants}
+          >
+            <motion.div variants={itemVariants} className="text-center mb-16">
+              <div className="flex items-center justify-center mb-6">
+                <div className="w-12 h-1 bg-gradient-to-r from-teal-600 to-blue-600"></div>
+                <Heart className="w-8 h-8 text-teal-600 mx-4" />
+                <div className="w-12 h-1 bg-gradient-to-l from-teal-600 to-blue-600"></div>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold text-slate-800 mb-4">
+                Life at Gastro Nova
+              </h2>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                Experience a culture of excellence, innovation, and continuous growth
+              </p>
+            </motion.div>
+
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              {/* Content Card */}
+              <motion.div variants={slideInVariants}>
+                <div className="bg-white rounded-3xl p-8 shadow-xl border border-slate-200 min-h-[420px]">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-14 h-14 bg-gradient-to-r from-teal-600 to-teal-700 rounded-2xl flex items-center justify-center">
+                      <Star className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-4xl font-bold text-slate-800">Culture of Excellence</h3>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Heart className="w-6 h-6 text-red-500" />
+                      </div>
+                      <p className="text-gray-700 text-xl">Culture of collaboration, respect & innovation</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <TrendingUp className="w-6 h-6 text-green-500" />
+                      </div>
+                      <p className="text-gray-700 text-xl">Fast-track growth opportunities for performers</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Users className="w-6 h-6 text-blue-500" />
+                      </div>
+                      <p className="text-gray-700 text-xl">Regular field force meetings, training sessions, and celebrations</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Image Section with Animation */}
+              <motion.div 
+                variants={slideInVariants}
+                className="relative"
+              >
+                {/* Main Image Container - Medium Size */}
+                <motion.div 
+                  className="relative rounded-3xl overflow-hidden shadow-2xl h-96"
+                  whileHover={{ scale: 1.02, rotate: 0 }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                >
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-teal-600/20 z-10"></div>
+                  
+                  {/* Main Image */}
+                  <motion.img
+                    src={img2}
+                    alt="Life at Gastro Nova - Team Culture"
+                    className="w-full h-full object-cover"
+                    initial={{ scale: 1.1, opacity: 0 }}
+                    whileInView={{ scale: 1, opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                  />
+                </motion.div>
+
+                {/* Decorative Elements - Smaller and contained */}
+                <motion.div
+                  className="absolute top-1 right-1 w-12 h-12 bg-gradient-to-br from-blue-400 to-teal-400 rounded-full opacity-20 -z-10"
+                  animate={{
+                    scale: [1, 1.1, 1],
+                    rotate: [0, 180, 360]
+                  }}
+                  transition={{
+                    duration: 8,
+                    repeat: Infinity,
+                    ease: "linear"
+                  }}
+                />
+                <motion.div
+                  className="absolute bottom-1 left-1 w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full opacity-15 -z-10"
+                  animate={{
+                    scale: [1, 1.2, 1],
+                    rotate: [360, 180, 0]
+                  }}
+                  transition={{
+                    duration: 10,
+                    repeat: Infinity,
+                    ease: "linear"
+                  }}
+                />
+              </motion.div>
+            </div>
+
+            {/* Bottom Grid - Keep existing */}
+            <motion.div variants={slideInVariants} className="grid grid-cols-2 gap-6 mt-16">
+              {[
+                { icon: Users, title: "Team Meetings", color: "from-blue-500 to-blue-600" },
+                { icon: Award, title: "Training Sessions", color: "from-teal-500 to-teal-600" },
+                { icon: Heart, title: "Celebrations", color: "from-purple-500 to-purple-600" },
+                { icon: TrendingUp, title: "Growth", color: "from-indigo-500 to-indigo-600" }
+              ].map((item, index) => (
+                <motion.div 
+                  key={index}
+                  className={`bg-gradient-to-br ${item.color} p-8 rounded-2xl text-white text-center shadow-lg`}
+                  whileHover={{ scale: 1.05, rotate: 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <item.icon className="w-12 h-12 mx-auto mb-4" />
+                  <h4 className="font-bold text-lg">{item.title}</h4>
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div> 
         </div>
-        <h2 className="text-4xl md:text-5xl font-bold text-slate-800 mb-4">
-          Life at Gastro Nova
-        </h2>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Experience a culture of excellence, innovation, and continuous growth
-        </p>
-      </motion.div>
-
-      <div className="grid lg:grid-cols-2 gap-12 items-center">
-        {/* Content Card */}
-        <motion.div variants={slideInVariants}>
-          <div className="bg-white rounded-3xl p-8 shadow-xl border border-slate-200 min-h-[420px]">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 bg-gradient-to-r from-teal-600 to-teal-700 rounded-2xl flex items-center justify-center">
-                <Star className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-4xl font-bold text-slate-800">Culture of Excellence</h3>
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Heart className="w-6 h-6 text-red-500" />
-                </div>
-                <p className="text-gray-700 text-xl">Culture of collaboration, respect & innovation</p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <TrendingUp className="w-6 h-6 text-green-500" />
-                </div>
-                <p className="text-gray-700 text-xl">Fast-track growth opportunities for performers</p>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Users className="w-6 h-6 text-blue-500" />
-                </div>
-                <p className="text-gray-700 text-xl">Regular field force meetings, training sessions, and celebrations</p>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Image Section with Animation */}
-        <motion.div 
-          variants={slideInVariants}
-          className="relative"
-        >
-          {/* Main Image Container - Medium Size */}
-          <motion.div 
-            className="relative rounded-3xl overflow-hidden shadow-2xl h-105"
-            whileHover={{ scale: 1.02, rotate: 0 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-          >
-            {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-teal-600/20 z-10"></div>
-            
-            {/* Main Image */}
-            <motion.img
-              src={img2}
-              alt="Life at Gastro Nova - Team Culture"
-              className="w-full h-full object-cover"
-              initial={{ scale: 1.1, opacity: 0 }}
-              whileInView={{ scale: 1, opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-            />
-          </motion.div>
-
-          {/* Decorative Elements - Smaller and contained */}
-          <motion.div
-            className="absolute top-1 right-1 w-12 h-12 bg-gradient-to-br from-blue-400 to-teal-400 rounded-full opacity-20 -z-10"
-            animate={{
-              scale: [1, 1.1, 1],
-              rotate: [0, 180, 360]
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          />
-          <motion.div
-            className="absolute bottom-1 left-1 w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full opacity-15 -z-10"
-            animate={{
-              scale: [1, 1.2, 1],
-              rotate: [360, 180, 0]
-            }}
-            transition={{
-              duration: 10,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-          />
-        </motion.div>
-      </div>
-
-      {/* Bottom Grid - Keep existing */}
-      <motion.div variants={slideInVariants} className="grid grid-cols-2 gap-6 mt-16">
-        {[
-          { icon: Users, title: "Team Meetings", color: "from-blue-500 to-blue-600" },
-          { icon: Award, title: "Training Sessions", color: "from-teal-500 to-teal-600" },
-          { icon: Heart, title: "Celebrations", color: "from-purple-500 to-purple-600" },
-          { icon: TrendingUp, title: "Growth", color: "from-indigo-500 to-indigo-600" }
-        ].map((item, index) => (
-          <motion.div 
-            key={index}
-            className={`bg-gradient-to-br ${item.color} p-8 rounded-2xl text-white text-center shadow-lg`}
-            whileHover={{ scale: 1.05, rotate: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            <item.icon className="w-12 h-12 mx-auto mb-4" />
-            <h4 className="font-bold text-lg">{item.title}</h4>
-          </motion.div>
-        ))}
-      </motion.div>
-    </motion.div> 
-  </div>
-</section>
+      </section>
 
       {/* Submit Resume Section */}
       <section id="submit-resume" className="py-20 bg-gradient-to-br from-slate-900 to-blue-900">
@@ -1211,7 +1300,7 @@ const Careers = () => {
         </div>
       </section>
 
-      {/* Working Culture Section - FIXED FOR MOBILE */}
+      {/* Working Culture Section */}
       <section className="py-16 sm:py-20 bg-gradient-to-br from-slate-50 to-blue-50 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <motion.div
@@ -1495,7 +1584,7 @@ const Careers = () => {
       </section>
 
       {/* Newsletter Section */}
-      <section className="py-20 bg-gradient-to-br from-slate-900 to-blue-900">
+      <section id="newsletter" className="py-20 bg-gradient-to-br from-slate-900 to-blue-900">
         <div className="max-w-4xl mx-auto px-6">
           <motion.div
             initial="hidden"
@@ -1532,54 +1621,54 @@ const Careers = () => {
                     <span className="text-green-700 font-medium">{newsletterSuccess}</span>
                   </div>
                 </motion.div>
-                )}
+              )}
 
-                { newsletterError && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs">!</span>
-                      </div>
-                      <span className="text-red-700 font-medium">{newsletterError}</span>
+              {newsletterError && (
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                      <span className="text-white text-xs">!</span>
                     </div>
-                  </motion.div>
-                )}
-
-                <form onSubmit={handleNewsletterSubmit} className="flex flex-col md:flex-row gap-6">
-                  <div className="flex-1">
-                    <input
-                      type="email"
-                      name="email"
-                      placeholder="Enter your email address"
-                      className="w-full px-6 py-4 bg-white/20 border border-white/30 rounded-xl text-white placeholder-white/60 focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm text-lg"
-                      required
-                    />
+                    <span className="text-red-700 font-medium">{newsletterError}</span>
                   </div>
-                  <motion.button
-                    type="submit"
-                    disabled={subscribing}
-                    className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-10 py-4 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                    whileHover={!subscribing ? { scale: 1.05 } : {}}
-                    whileTap={!subscribing ? { scale: 0.95 } : {}}
-                  >
-                    {subscribing ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        Subscribing...
-                      </>
-                    ) : (
-                      <>
-                        <Mail className="w-5 h-5" />
-                        Subscribe
-                      </>
-                    )}
-                  </motion.button>
-                </form>
-              </motion.div>
+                </motion.div>
+              )}
+
+              <form onSubmit={handleNewsletterSubmit} className="flex flex-col md:flex-row gap-6">
+                <div className="flex-1">
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Enter your email address"
+                    className="w-full px-6 py-4 bg-white/20 border border-white/30 rounded-xl text-white placeholder-white/60 focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm text-lg"
+                    required
+                  />
+                </div>
+                <motion.button
+                  type="submit"
+                  disabled={subscribing}
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-10 py-4 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center gap-3 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  whileHover={!subscribing ? { scale: 1.05 } : {}}
+                  whileTap={!subscribing ? { scale: 0.95 } : {}}
+                >
+                  {subscribing ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Subscribing...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="w-5 h-5" />
+                      Subscribe
+                    </>
+                  )}
+                </motion.button>
+              </form>
+            </motion.div>
           </motion.div>
         </div>
       </section>
