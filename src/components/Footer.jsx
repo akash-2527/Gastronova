@@ -224,7 +224,7 @@ const Footer = () => {
                   <Instagram size={20} />
                 </motion.a>
                 <motion.a
-                  href="#"
+                  href="https://www.linkedin.com/company/gastro-nova/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-900"
